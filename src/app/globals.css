@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F8FAFC;
+  --foreground: #1E3A5F;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.rsw-ce ul {
+  list-style: disc;
+  padding-left: 2em;
+}
+
+.rsw-ce ol {
+  list-style: decimal;
+  padding-left: 2em;
+}
+
+.rsw-ce a {
+  color: #0D9488;
+  text-decoration: underline;
+}
+
+.rsw-ce a:hover {
+  color: #0F766E;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
