@@ -109,6 +109,8 @@ export default function SubmissionsTable({
       loading={loading}
       emptyMessage="No submissions found"
       mobileCardView={true}
+      pagination={true}
+      pageSize={10}
     />
   );
 }

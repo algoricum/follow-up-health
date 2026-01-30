@@ -1,4 +1,6 @@
-import { ReactNode } from 'react';
+'use client';
+
+import { ReactNode, useState } from 'react';
 import Spinner from './Spinner';
 
 interface Column<T> {
@@ -19,6 +21,10 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   /** Use card layout on mobile instead of horizontal scroll table */
   mobileCardView?: boolean;
+  /** Enable pagination */
+  pagination?: boolean;
+  /** Number of items per page (default: 10) */
+  pageSize?: number;
 }
 
 export default function DataTable<T extends { id: string }>({
@@ -28,7 +34,22 @@ export default function DataTable<T extends { id: string }>({
   emptyMessage = 'No data available',
   onRowClick,
   mobileCardView = true,
+  pagination = false,
+  pageSize = 10,
 }: DataTableProps<T>) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(data.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = pagination ? data.slice(startIndex, endIndex) : data;
+
+  // Reset to page 1 if current page exceeds total pages (e.g., after filtering)
+  if (currentPage > totalPages && totalPages > 0) {
+    setCurrentPage(1);
+  }
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -56,7 +77,7 @@ export default function DataTable<T extends { id: string }>({
   // Mobile card view
   const MobileCardView = () => (
     <div className="md:hidden space-y-3">
-      {data.map((row) => (
+      {paginatedData.map((row) => (
         <div
           key={row.id}
           onClick={() => onRowClick?.(row)}
@@ -120,7 +141,7 @@ export default function DataTable<T extends { id: string }>({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {data.map((row) => (
+              {paginatedData.map((row) => (
                 <tr
                   key={row.id}
                   onClick={() => onRowClick?.(row)}
@@ -145,10 +166,103 @@ export default function DataTable<T extends { id: string }>({
     </div>
   );
 
+  // Pagination controls
+  const PaginationControls = () => {
+    if (!pagination || totalPages <= 1) return null;
+
+    const getPageNumbers = () => {
+      const pages: (number | string)[] = [];
+      const maxVisiblePages = 5;
+
+      if (totalPages <= maxVisiblePages) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        if (currentPage <= 3) {
+          for (let i = 1; i <= 4; i++) pages.push(i);
+          pages.push('...');
+          pages.push(totalPages);
+        } else if (currentPage >= totalPages - 2) {
+          pages.push(1);
+          pages.push('...');
+          for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+        } else {
+          pages.push(1);
+          pages.push('...');
+          for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+          pages.push('...');
+          pages.push(totalPages);
+        }
+      }
+      return pages;
+    };
+
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 px-2">
+        <p className="text-sm text-gray-600">
+          Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} entries
+        </p>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="First page"
+          >
+            ««
+          </button>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Previous page"
+          >
+            «
+          </button>
+          {getPageNumbers().map((page, index) =>
+            page === '...' ? (
+              <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-gray-400">
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page as number)}
+                className={`px-3 py-1 text-sm rounded border ${
+                  currentPage === page
+                    ? 'bg-teal text-white border-teal'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {page}
+              </button>
+            )
+          )}
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Next page"
+          >
+            »
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+            className="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Last page"
+          >
+            »»
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       {mobileCardView && <MobileCardView />}
       <DesktopTableView />
+      <PaginationControls />
     </>
   );
 }

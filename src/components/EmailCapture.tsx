@@ -45,6 +45,7 @@ export default function EmailCapture({ inputs, results, drivers }: EmailCaptureP
 
       setStatus('success');
       setEmail('');
+      window.location.href = 'https://followup.algoricum.com/after-the-first-reply/';
     } catch {
       setStatus('error');
       setErrorMessage('Failed to send. Please try again.');
@@ -81,7 +82,8 @@ export default function EmailCapture({ inputs, results, drivers }: EmailCaptureP
         </h3>
         <p className="text-xs text-black mb-2">
           Almost everyone does.<br />
-          The next part is where it breaks.
+          The next part is where it breaks.<br />
+          Most clinics never look here.
         </p>
         <p className="text-xs text-black mb-2">If you&apos;re curious:</p>
         <button
@@ -94,13 +96,6 @@ export default function EmailCapture({ inputs, results, drivers }: EmailCaptureP
 
       {/* Email Capture Form */}
       <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <h3 className="text-sm font-semibold text-navy mb-1">
-          What Happens After the First Reply
-        </h3>
-        <p className="text-xs text-black mb-3">
-          Receive a personalized report with actionable recommendations.
-        </p>
-
         <form onSubmit={handleSubmit} className="flex gap-2">
           <div className="flex-1">
             <input

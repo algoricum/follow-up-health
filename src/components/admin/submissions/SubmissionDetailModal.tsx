@@ -1,6 +1,7 @@
 'use client';
 
 import { Submission, ResponseTime, FollowUpDepth, PatientValue, AfterHoursCoverage } from '@/types';
+import { getTopDrivers } from '@/lib/drivers';
 import Modal from '../shared/Modal';
 
 interface SubmissionDetailModalProps {
@@ -50,6 +51,15 @@ export default function SubmissionDetailModal({
     if (grade.startsWith('C')) return 'bg-amber-100 text-amber-700';
     return 'bg-rose-100 text-rose-700';
   };
+
+  // Calculate drivers based on actual submission inputs (same as calculator dashboard)
+  const calculatedDrivers = getTopDrivers({
+    monthlyInquiries: submission.monthly_inquiries,
+    responseTime: submission.response_time,
+    followUpDepth: submission.follow_up_depth,
+    patientValue: submission.patient_value,
+    afterHours: submission.after_hours,
+  });
 
   return (
     <Modal isOpen={!!submission} onClose={onClose} title="Submission Details">
@@ -125,15 +135,25 @@ export default function SubmissionDetailModal({
           </div>
           <div className="col-span-1 sm:col-span-2">
             <p className="text-sm text-black">Drivers</p>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {submission.drivers.map((driver, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm"
-                >
-                  {driver}
-                </span>
-              ))}
+            <div className="flex flex-col gap-2 mt-1">
+              {calculatedDrivers.map((driver) => {
+                const isWorking = driver.title.includes('(Working)');
+                return (
+                  <div
+                    key={driver.code}
+                    className={`px-3 py-2 rounded-lg border ${
+                      isWorking
+                        ? 'bg-emerald-50 border-emerald-200'
+                        : 'bg-rose-50 border-rose-200'
+                    }`}
+                  >
+                    <p className={`text-sm font-medium ${isWorking ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {driver.title}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-0.5">{driver.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

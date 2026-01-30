@@ -39,9 +39,12 @@ export default function ResultsDashboard({ inputs, results }: ResultsDashboardPr
   };
 
   return (
-    <div className="space-y-4">
+    <div className="p-4 bg-slate-100 rounded-xl border-2 border-slate-300 space-y-4">
       {/* Results header */}
-      <h2 className="text-base font-semibold text-navy">Results</h2>
+      <div className="flex items-center gap-2 pb-2 border-b border-slate-300">
+        <div className="w-2 h-2 bg-teal rounded-full"></div>
+        <h2 className="text-base font-semibold text-navy uppercase tracking-wide">Results</h2>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-3 gap-3">
@@ -49,7 +52,7 @@ export default function ResultsDashboard({ inputs, results }: ResultsDashboardPr
           title="Your Grade (So Far)"
           value={results.grade}
           subtitle={`Score: ${results.gradeScore}/100`}
-          description="This is the obvious part. The next part is where it breaks."
+          description="This measures the visible part of follow-up."
           variant={getGradeVariant(results.grade)}
         />
         <KPICard
@@ -60,7 +63,7 @@ export default function ResultsDashboard({ inputs, results }: ResultsDashboardPr
             </span>
           }
           subtitle="Monthly estimate"
-          description="This isn't lost. It's the money that gets decided somewhere else."
+          description="This isn't lost. It's revenue that gets decided elsewhere."
           variant="danger"
         />
         <KPICard
